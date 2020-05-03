@@ -8,11 +8,9 @@ const bodyParser = require('body-parser');
 const favicon = require('serve-favicon');
 const http = require('http');
 
-const utils = require('./utils');
-
 // set up server
 var app = express();
-app.use(favicon(path.join(__dirname, 'imgs', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'imgs', 'favicon.ico'))); -- uncomment this line if u have a favicon for your site
 app.use(express.static(__dirname + './public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
