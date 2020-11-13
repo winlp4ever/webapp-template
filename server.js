@@ -5,33 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const favicon = require('serve-favicon');
+// const favicon = require('serve-favicon');
 const http = require('http');
-
-var { graphqlHTTP } = require('express-graphql');
-var { buildSchema } = require('graphql');
-
-// Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
-    type Query {
-        hello: String,
-        rollDice(numDice: Int!, numSides: Int): [Int]
-    }
-`);
-
-// The root provides a resolver function for each API endpoint
-var root = {
-    hello: () => {
-      return 'Hello world!';
-    },
-    rollDice: ({numDice, numSides}) => {
-        var output = [];
-        for (var i = 0; i < numDice; i++) {
-          output.push(1 + Math.floor(Math.random() * (numSides || 6)));
-        }
-        return output;
-    }
-};
 
 // set up server
 var app = express();
@@ -39,16 +14,11 @@ var app = express();
 app.use(express.static(__dirname + './public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
-}));
 
 const prodConfig = require('./webpack.prod.js');
 const devConfig = require('./webpack.dev.js');
 const options = {};
-var PORT = 5000;
+var PORT = 3000;
 
 var mode = 'prod';
 if (process.argv.length < 3) mode = 'prod';
@@ -64,7 +34,6 @@ if (mode == 'prod') {
 else compiler = webpack(devConfig);
 
 const server = new http.Server(app);
-const io = require('socket.io')(server);
 
 server.listen(PORT, () => {
     console.log(`listening to port ${PORT}`)
@@ -73,19 +42,6 @@ app.use(
     middleware(compiler, options)
 );
 app.use(require('webpack-hot-middleware')(compiler));
-
-// setup backend data for servicese
-
-// websocket communication handlers
-io.on('connection', function(socket){
-    count ++;
-    console.log(`${count}th user connected with id: ${socket.id}`);
-    socket.on('disconnect', function(){
-        count --;
-        console.log(`1 user disconnected, rest ${count}`);
-    });
-    
-});
 
 // normal routes with POST/GET 
 app.get('*', (req, res, next) => {
@@ -104,6 +60,6 @@ app.get('*', (req, res, next) => {
 
 // on terminating the process
 process.on('SIGINT', _ => {
-    console.log('now you quit!');
+    console.log('quitting!');
     process.exit();
 })
