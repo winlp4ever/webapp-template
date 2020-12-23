@@ -5,12 +5,18 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-// const favicon = require('serve-favicon');
 const http = require('http');
+const yargs = require('yargs');
+
+const { argv } = yargs
+    .option('dev', {
+        description: 'enable dev mode or prod',
+        type: 'boolean',
+        default: false
+    })
 
 // set up server
 var app = express();
-// app.use(favicon(path.join(__dirname, 'imgs', 'favicon.ico'))); -- uncomment this line if u have a favicon for your site
 app.use(express.static(__dirname + './public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -18,29 +24,24 @@ app.use(bodyParser.json());
 const prodConfig = require('./webpack.prod.js');
 const devConfig = require('./webpack.dev.js');
 const options = {};
-var PORT = 3000;
 
-var mode = 'prod';
-if (process.argv.length < 3) mode = 'prod';
-if (process.argv[2] != 'prod' & process.argv[2] != 'dev') {
-    console.error('Wrong mode - only dev or prod is accepted!');
-    return;
-};
-mode = process.argv[2];
-if (mode == 'prod') {
-    compiler = webpack(prodConfig);
+var PORT;
+var compiler;
+
+if (argv.dev) {
+    PORT = 3000;
+    compiler = webpack(devConfig);
+} else {
     PORT = 80;
+    compiler = webpack(prodConfig);
 }
-else compiler = webpack(devConfig);
 
 const server = new http.Server(app);
 
 server.listen(PORT, () => {
     console.log(`listening to port ${PORT}`)
 });
-app.use(
-    middleware(compiler, options)
-);
+app.use(middleware(compiler, options));
 app.use(require('webpack-hot-middleware')(compiler));
 
 // normal routes with POST/GET 
@@ -56,7 +57,6 @@ app.get('*', (req, res, next) => {
         res.end();
     });
 });
-
 
 // on terminating the process
 process.on('SIGINT', _ => {
