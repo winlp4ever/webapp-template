@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node server.js prod",
-    "start": "nodemon server.js dev --ignore 'node_modules/*' --ignore 'public/*' --ignore 'src/*' --watch server.js --ignore 'src/*'"
+    "build": "node server.js",
+    "start": "nodemon server.js --dev --ignore 'node_modules/*' --ignore 'public/*' --ignore 'src/*' --watch server.js --ignore 'src/*'"
   },
   "keywords": [],
   "author": "leh (le ha-quang)",
