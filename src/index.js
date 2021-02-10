@@ -15,7 +15,7 @@ renderWeb();
 if (module.hot) {
     module.hot.accept(
         [
-            './app/app', 
+            './app', 
         ], () => {
             console.log('what s up');
             renderWeb();
